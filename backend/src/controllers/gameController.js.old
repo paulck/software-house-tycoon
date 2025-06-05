@@ -1,0 +1,182 @@
+const { statements } = require('../models/database');
+const { calculateMonthlyCosts } = require('../services/calculationService');
+
+class GameController {
+  // Create new game
+  static createGame = (req, res) => {
+    try {
+      // Create new game with initial values
+      const game = statements.createGame.run(5000, 0);
+      
+      // Add initial developer
+      statements.createDeveloper.run(game.id, 'Marco Rossi', 3, 1500);
+      
+      // Add initial sales person
+      statements.createSalesPerson.run(game.id, 'Laura Bianchi', 2, 1100);
+      
+      // Update monthly costs
+      const monthlyCosts = calculateMonthlyCosts(game.id);
+      statements.updateGame.run(game.patrimonio, monthlyCosts, game.id);
+      
+      // Return full game state
+      const fullGameState = GameController.getFullGameState(game.id);
+      
+      res.status(201).json({
+        success: true,
+        data: fullGameState
+      });
+    } catch (error) {
+      console.error('Error creating game:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to create game'
+      });
+    }
+  };
+
+  // Get all games
+  static getAllGames = (req, res) => {
+    try {
+      const games = statements.getAllGames.all();
+      
+      res.json({
+        success: true,
+        data: games
+      });
+    } catch (error) {
+      console.error('Error getting games:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get games'
+      });
+    }
+  };
+
+  // Get single game with full state
+  static getGame = (req, res) => {
+    try {
+      const { id } = req.params;
+      const gameState = GameController.getFullGameState(parseInt(id));
+      
+      if (!gameState) {
+        return res.status(404).json({
+          success: false,
+          error: 'Game not found'
+        });
+      }
+      
+      res.json({
+        success: true,
+        data: gameState
+      });
+    } catch (error) {
+      console.error('Error getting game:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get game'
+      });
+    }
+  };
+
+  // Update game state
+  static updateGame = (req, res) => {
+    try {
+      const { id } = req.params;
+      const { patrimonio, monthlyCosts } = req.body;
+      
+      statements.updateGame.run(patrimonio, monthlyCosts, parseInt(id));
+      
+      const updatedGame = statements.getGame.get(parseInt(id));
+      
+      res.json({
+        success: true,
+        data: updatedGame
+      });
+    } catch (error) {
+      console.error('Error updating game:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to update game'
+      });
+    }
+  };
+
+  // Delete game
+  static deleteGame = (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const result = statements.deleteGame.run(parseInt(id));
+      
+      if (result.changes === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Game not found'
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Game deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error deleting game:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to delete game'
+      });
+    }
+  };
+
+  // Get full game state (helper method)
+  static getFullGameState = (gameId) => {
+    try {
+      const game = statements.getGame.get(gameId);
+      if (!game) return null;
+      
+      const developers = statements.getDevelopersByGame.all(gameId);
+      const salesPeople = statements.getSalesPeopleByGame.all(gameId);
+      const projects = statements.getProjectsByGame.all(gameId);
+      const marketResources = statements.getMarketResources.all();
+      
+      return {
+        ...game,
+        developers,
+        salesPeople,
+        projects,
+        marketResources
+      };
+    } catch (error) {
+      console.error('Error getting full game state:', error);
+      return null;
+    }
+  };
+
+  // Auto-save game state
+  static autoSave = (req, res) => {
+    try {
+      const { id } = req.params;
+      const gameState = req.body;
+      
+      // Update game basic info
+      statements.updateGame.run(
+        gameState.patrimonio, 
+        gameState.monthlyCosts, 
+        parseInt(id)
+      );
+      
+      res.json({
+        success: true,
+        message: 'Game auto-saved successfully'
+      });
+    } catch (error) {
+      console.error('Error auto-saving game:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to auto-save game'
+      });
+    }
+  };
+}
+
+module.exports = GameController;

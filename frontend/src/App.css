@@ -1,0 +1,119 @@
+
+/* App.css */
+.App {
+  min-height: 100vh;
+  background-color: #f7fafc;
+}
+
+.nav-btn.active {
+  background-color: rgba(59, 130, 246, 0.8);
+}
+
+.resource-card {
+  transition: all 0.3s ease;
+}
+
+.resource-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.game-screen {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Game specific styles */
+.game-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary {
+  @apply bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors;
+}
+
+.btn-success {
+  @apply bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors;
+}
+
+.btn-danger {
+  @apply bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors;
+}
+
+/* Loading animations */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Status indicators */
+.status-available {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-busy {
+  @apply bg-orange-100 text-orange-800;
+}
+
+.status-generating {
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* Project status colors */
+.project-pending {
+  @apply bg-yellow-50 border-yellow-300;
+}
+
+.project-in-progress {
+  @apply bg-blue-50 border-blue-300;
+}
+
+.project-completed {
+  @apply bg-green-50 border-green-300;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
